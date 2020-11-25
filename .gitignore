@@ -1,2 +1,5 @@
 .env
+
+# python artifacts
+__pycache__/
 *.pyc
