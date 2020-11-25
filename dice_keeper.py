@@ -44,7 +44,12 @@ class Macros():
   def handle_move(self, user, move_name):
     mod = self.move_mods[user][move_name]
     result = self.roller.roll_move(mod)
-    return f'{self.user_characters[user]} rolled 2d6 + {self.move_mods[user][move_name]} for {move_name} and got {result}'
+    if mod >= 0:
+      mod_clause = f'+ {self.move_mods[user][move_name]}'
+    else:
+      mod_clause = f'- {-self.move_mods[user][move_name]}'
+
+    return f'{self.user_characters[user]} rolled 2d6 {mod_clause} for {move_name} and got {result}'
 
 
 if __name__ == '__main__':
