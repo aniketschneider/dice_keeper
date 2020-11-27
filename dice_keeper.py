@@ -50,8 +50,10 @@ class Macros():
     return min(self.move_names, key=distance_to(user_move.lower()))
 
 
-  def handle_move(self, user, move_name):
-    move_name = self._canonical_move(move_name)
+  def handle_move(self, user, orig_move_name):
+    move_name = self._canonical_move(orig_move_name)
+    if move_name != orig_move_name:
+      LOG.info(f'Interpreted move {orig_move_name} as {move_name}')
     mod = self.move_mods[user][move_name]
     result = self.roller.roll_move(mod)
     if mod >= 0:
@@ -60,6 +62,10 @@ class Macros():
       mod_clause = f'- {-self.move_mods[user][move_name]}'
 
     return f'{self.user_characters[user]} rolled 2d6 {mod_clause} for {move_name} and got {result}'
+
+  def moves(self, user):
+    moves = '\n'.join(sorted(self.move_mods[user].keys()))
+    return f"{self.user_characters[user]} has the following moves available:\n{moves}"
 
 
 if __name__ == '__main__':
@@ -72,7 +78,15 @@ if __name__ == '__main__':
 
   roller = DiceRoller()
 
-  @bot.command(name='roll')
+  @bot.command()
+  async def moves(ctx, *args):
+    unique_user = f'{ctx.author.name}#{ctx.author.discriminator}'
+    macros = Macros(sheet_key)
+    message = macros.moves(unique_user)
+    LOG.info(message)
+    await ctx.send(message)
+
+  @bot.command(name='roll', aliases=['r'])
   async def _roll(ctx, *args):
     macros = Macros(sheet_key)
     LOG.debug(macros.user_characters)
