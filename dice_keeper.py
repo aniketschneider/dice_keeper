@@ -1,3 +1,4 @@
+import re
 import sys
 from collections import defaultdict
 import os
@@ -6,6 +7,7 @@ import logging
 import gspread
 from discord.ext import commands
 from dotenv import load_dotenv
+from Levenshtein import distance
 
 from dice_roller import DiceRoller
 
@@ -41,7 +43,15 @@ class Macros():
         except:
           pass
 
+  def _canonical_move(self, user_move):
+    def distance_to(a):
+      return lambda b: distance(a,b)
+
+    return min(self.move_names, key=distance_to(user_move.lower()))
+
+
   def handle_move(self, user, move_name):
+    move_name = self._canonical_move(move_name)
     mod = self.move_mods[user][move_name]
     result = self.roller.roll_move(mod)
     if mod >= 0:
@@ -72,12 +82,12 @@ if __name__ == '__main__':
     unique_user = f'{ctx.author.name}#{ctx.author.discriminator}'
     LOG.info(f'Processing < /roll {" ".join(args)} > from {unique_user}')
 
-    if args[0] in macros.move_names:
-      message = macros.handle_move(unique_user, args[0])
-    else:
+    if any(re.match('d\d', arg) for arg in args):
       dstr = ''.join(args)
       result = roller.roll_string(dstr)
       message = f'You rolled {dstr} and got {result}'
+    else:
+      message = macros.handle_move(unique_user, args[0])
 
     LOG.info(message)
     await ctx.send(message)
