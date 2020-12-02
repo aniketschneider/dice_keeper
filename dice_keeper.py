@@ -1,10 +1,12 @@
 import re
 import sys
-from collections import defaultdict
 import os
 import logging
+import json
+from collections import defaultdict
 
 import gspread
+from google.oauth2.service_account import Credentials
 from discord.ext import commands
 from dotenv import load_dotenv
 from Levenshtein import distance
@@ -20,10 +22,14 @@ class Macros():
   def __init__(self, sheet_key):
     self.sheet_key = sheet_key
     self.roller = DiceRoller()
+    creds_json = os.getenv("GCP_SERVICE_ACCOUNT_CREDS")
+    self.creds_dict = json.loads(creds_json)
     self.parse_macros()
 
   def parse_macros(self):
-    gc = gspread.service_account()
+    creds = Credentials.from_service_account_info(info=self.creds_dict, scopes=gspread.auth.READONLY_SCOPES)
+    gc = gspread.client.Client(auth=creds)
+
     spreadsheet = gc.open_by_key(self.sheet_key)
     worksheet = spreadsheet.worksheet("Macros")
 
