@@ -102,7 +102,7 @@ if __name__ == '__main__':
     unique_user = f'{ctx.author.name}#{ctx.author.discriminator}'
     LOG.info(f'Processing < /roll {" ".join(args)} > from {unique_user}')
 
-    if any(re.match('d\d', arg) for arg in args):
+    if any(re.match('\d*d\d+', arg) for arg in args):
       dstr = ''.join(args)
       result = roller.roll_string(dstr)
       message = f'You rolled {dstr} and got {result}'
