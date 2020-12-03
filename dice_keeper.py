@@ -79,7 +79,6 @@ if __name__ == '__main__':
   load_dotenv()
 
   token = os.getenv('DISCORD_TOKEN')
-  sheet_key = os.getenv('SHEET_KEY')
 
   bot = commands.Bot(command_prefix='/')
 
@@ -87,14 +86,24 @@ if __name__ == '__main__':
 
   @bot.command()
   async def moves(ctx, *args):
-    unique_user = f'{ctx.author.name}#{ctx.author.discriminator}'
+    ds = DataStore()
+    guild_id = ctx.guild.id
+    channel_id = ctx.channel.id
+    sheet_key = ds.get_sheet_for_channel(guild_id, channel_id)
     macros = Macros(sheet_key)
+
+    unique_user = f'{ctx.author.name}#{ctx.author.discriminator}'
     message = macros.moves(unique_user)
     LOG.info(message)
     await ctx.send(message)
 
   @bot.command(name='roll', aliases=['r'])
   async def _roll(ctx, *args):
+    ds = DataStore()
+    guild_id = ctx.guild.id
+    channel_id = ctx.channel.id
+    sheet_key = ds.get_sheet_for_channel(guild_id, channel_id)
+
     macros = Macros(sheet_key)
     LOG.debug(macros.user_characters)
     LOG.debug(macros.move_mods)

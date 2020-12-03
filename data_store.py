@@ -24,7 +24,11 @@ class DataStore():
 
   def get_sheet_for_channel(self, guild_id, channel_id):
     key = self._channel_key(guild_id, channel_id)
-    return self.redis_client.get(key).decode('utf-8')
+    channel_id = self.redis_client.get(key)
+    if channel_id is None:
+      return None
+    else:
+      return channel_id.decode('utf-8')
 
   def _channel_key(self, guild_id, channel_id):
     return f"g{guild_id}:c{channel_id}"
