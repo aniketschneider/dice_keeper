@@ -8,8 +8,8 @@ from collections import defaultdict
 import gspread
 from google.oauth2.service_account import Credentials
 from discord.ext import commands
-from dotenv import load_dotenv
 from Levenshtein import distance
+from data_store import DataStore
 
 from dice_roller import DiceRoller
 
@@ -75,6 +75,7 @@ class Macros():
 
 
 if __name__ == '__main__':
+  from dotenv import load_dotenv
   load_dotenv()
 
   token = os.getenv('DISCORD_TOKEN')
@@ -110,6 +111,28 @@ if __name__ == '__main__':
       message = macros.handle_move(unique_user, args[0])
 
     LOG.info(message)
+    await ctx.send(message)
+
+  @bot.command()
+  async def setsheet(ctx, *args):
+    sheet_id = args[0]
+    guild_id = ctx.guild.id
+    channel_id = ctx.channel.id
+
+    ds = DataStore()
+    ds.set_sheet_for_channel(guild_id, channel_id, sheet_id)
+    message = f"Google Sheet ID set."
+    await ctx.send(message)
+
+  @bot.command()
+  async def getsheet(ctx, *args):
+    guild_id = ctx.guild.id
+    channel_id = ctx.channel.id
+
+    ds = DataStore()
+    sheet_id = ds.get_sheet_for_channel(guild_id, channel_id)
+
+    message = f"Sheet ID is {sheet_id}"
     await ctx.send(message)
 
   @bot.event
