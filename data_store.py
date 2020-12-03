@@ -8,11 +8,10 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 def get_redis_client():
-  host = os.getenv("REDIS_HOST") or "localhost"
-  port = int(os.getenv("REDIS_PORT") or 6379)
-  LOG.info(f"Connecting to redis on {host}:{port}")
+  url = os.getenv("REDIS_URL") or "localhost:6379"
+  LOG.info(f"Connecting to redis at {url}")
 
-  return redis.Redis(host=host, port=port, db=0)
+  return redis.from_url(url)
 
 class DataStore():
   def __init__(self):
