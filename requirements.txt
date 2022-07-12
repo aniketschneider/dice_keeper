@@ -1,6 +1,6 @@
 gspread==5.4.0
-python-dotenv==0.20.0
+python-dotenv
 discord.py==1.7.3
 python-Levenshtein==0.12.2
-google-auth==2.9.0
-redis==4.3.4
+google-auth
+redis
